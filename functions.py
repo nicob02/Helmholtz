@@ -66,7 +66,7 @@ class ElectroThermalFunc():
         return volt
 
 
-    def boundary_condition(self, graph, predicted):
+    def boundary_condition(self, graph, predicted, lb=None, ru=None):
         
         #volt = torch.full_like(graph.pos[:, 0:1], 0)  # Create a tensor filled with 0s for the B.C. voltage
         
@@ -75,24 +75,28 @@ class ElectroThermalFunc():
         lb_x, lb_y = pos.min(dim=0).values  # tensor([ℓ_x, ℓ_y])
         ru_x, ru_y = pos.max(dim=0).values  # tensor([r_x, r_y])
         
-        # normalized coords in [0,1]
-        ξ = (x - lb_x)/(ru_x - lb_x)
-        η = (y - lb_y)/(ru_y - lb_y)
-        '''
-        # PDE‐enforcing ansatz: zero on all four boundaries
-        ansatz = torch.tanh(math.pi * ξ) \
-          * torch.tanh(math.pi * (1-ξ)) \
-          * torch.tanh(math.pi * η) \
-          * torch.tanh(math.pi * (1-η))
-        '''
-        # Ansatz that is zero on x=0,1 and y=0,1
-        ansatz = (torch.tanh(np.pi * x)
-                  * torch.tanh(np.pi * (1.0 - x))
-                  * torch.tanh(np.pi * y)
-                  * torch.tanh(np.pi * (1.0 - y)))
+        if lb is not None and ru is not None:
+            # unpack, ensure floats
+            lb_x, lb_y = lb[0].item(), lb[1].item()
+            ru_x, ru_y = ru[0].item(), ru[1].item()
+
+            # normalize to [0,1]
+            ξ   = (x - lb_x) / (ru_x - lb_x)
+            η   = (y - lb_y) / (ru_y - lb_y)
+
+            A =  torch.tanh(math.pi * ξ) \
+               *  torch.tanh(math.pi * (1.0 - ξ)) \
+               *  torch.tanh(math.pi * η) \
+               *  torch.tanh(math.pi * (1.0 - η))
+        else:
+            # old unit‐square ansatz
+            A = (torch.tanh(math.pi * x)
+                 * torch.tanh(math.pi * (1.0 - x))
+                 * torch.tanh(math.pi * y)
+                 * torch.tanh(math.pi * (1.0 - y)))
         
         # Multiply raw network output by ansatz
-        return ansatz * predicted
+        return A * predicted
         
 
     def exact_solution(self, graph):
