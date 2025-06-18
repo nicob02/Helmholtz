@@ -27,7 +27,7 @@ model = msgPassing(message_passing_num=3, node_input_size=out_ndim+2, edge_input
 model.to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
 
-mesh = ElectrodeMesh(ru=(1, 1), lb=(0, 0), density=60)
+mesh = ElectrodeMesh(ru=(1, 1), lb=(0, 0), density=65)
 
 graph = mesh.getGraphData().to(device)
 graph.pos.requires_grad_()
@@ -85,7 +85,7 @@ setattr(train_config, 'graph', graph)
 setattr(train_config, 'model', model)
 setattr(train_config, 'optimizer', optimizer)
 setattr(train_config, 'train_steps', 1)    # 1 train step, extend this in the future to a dynamic source function that changes with time.
-setattr(train_config, 'epchoes', 5000)
+setattr(train_config, 'epchoes', 5)
 setattr(train_config, 'NodeTypesRef', ElectrodeMesh.node_type_ref) 
 setattr(train_config, 'step_times', 1)
 #setattr(train_config, 'name', func_name)
