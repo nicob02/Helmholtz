@@ -70,10 +70,10 @@ class ElectroThermalFunc():
         
         #volt = torch.full_like(graph.pos[:, 0:1], 0)  # Create a tensor filled with 0s for the B.C. voltage
         
-        pos = graph.pos           # [N,2]
-        x = pos[:,0:1];  y = pos[:,1:2]
+          # lb, ru might be Python floats/tuples or Tensors
+    # extract numeric values in a safe way
         if isinstance(lb, torch.Tensor):
-        lb_x, lb_y = lb[0].item(), lb[1].item()
+            lb_x, lb_y = lb[0].item(), lb[1].item()
         else:
             lb_x, lb_y = float(lb[0]), float(lb[1])
     
@@ -81,29 +81,21 @@ class ElectroThermalFunc():
             ru_x, ru_y = ru[0].item(), ru[1].item()
         else:
             ru_x, ru_y = float(ru[0]), float(ru[1])
-        
-        if lb is not None and ru is not None:
-            # unpack, ensure floats
-            lb_x, lb_y = lb[0].item(), lb[1].item()
-            ru_x, ru_y = ru[0].item(), ru[1].item()
-
-            # normalize to [0,1]
-            ξ   = (x - lb_x) / (ru_x - lb_x)
-            η   = (y - lb_y) / (ru_y - lb_y)
-
-            A =  torch.tanh(math.pi * ξ) \
-               *  torch.tanh(math.pi * (1.0 - ξ)) \
-               *  torch.tanh(math.pi * η) \
-               *  torch.tanh(math.pi * (1.0 - η))
-        else:
-            # old unit‐square ansatz
-            A = (torch.tanh(math.pi * x)
-                 * torch.tanh(math.pi * (1.0 - x))
-                 * torch.tanh(math.pi * y)
-                 * torch.tanh(math.pi * (1.0 - y)))
-        
+    
+        x = graph.pos[:, 0:1]
+        y = graph.pos[:, 1:2]
+        # now normalize and build ansatz using lb_x, ru_x, etc.
+        ξ = (x - lb_x) / (ru_x - lb_x)
+        η = (y - lb_y) / (ru_y - lb_y)
+    
+        ansatz = (
+            torch.tanh(math.pi * ξ) *
+            torch.tanh(math.pi * (1 - ξ)) *
+            torch.tanh(math.pi * η) *
+            torch.tanh(math.pi * (1 - η))
+        )
         # Multiply raw network output by ansatz
-        return A * predicted
+        return ansatz * predicted
         
 
     def exact_solution(self, graph):
