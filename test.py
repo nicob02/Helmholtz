@@ -25,7 +25,7 @@ func_main = Func(delta_t=delta_t, params=poisson_params)
 bc1 = func_main.boundary_condition
 ic = func_main.init_condition
 
-mesh = ElectrodeMesh(ru=(1, 1), lb=(0, 0), density=65)
+mesh = ElectrodeMesh(ru=(1, 1), lb=(0, 0), density=60)
 graph = mesh.getGraphData()
 model = msgPassing(message_passing_num=3, node_input_size=out_ndim+2, 
                    edge_input_size=3, ndim=out_ndim, device=device, model_dir=ckptpath)
