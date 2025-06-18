@@ -70,15 +70,27 @@ class ElectroThermalFunc():
         
         #volt = torch.full_like(graph.pos[:, 0:1], 0)  # Create a tensor filled with 0s for the B.C. voltage
         
-        x = graph.pos[:, 0:1]
-        y = graph.pos[:, 1:2]
-    
+        pos = graph.pos           # [N,2]
+        x = pos[:,0:1];  y = pos[:,1:2]
+        lb_x, lb_y = pos.min(dim=0).values  # tensor([ℓ_x, ℓ_y])
+        ru_x, ru_y = pos.max(dim=0).values  # tensor([r_x, r_y])
+        
+        # normalized coords in [0,1]
+        ξ = (x - lb_x)/(ru_x - lb_x)
+        η = (y - lb_y)/(ru_y - lb_y)
+        
+        # PDE‐enforcing ansatz: zero on all four boundaries
+        ansatz = torch.tanh(math.pi * ξ) \
+          * torch.tanh(math.pi * (1-ξ)) \
+          * torch.tanh(math.pi * η) \
+          * torch.tanh(math.pi * (1-η))
+        '''
         # Ansatz that is zero on x=0,1 and y=0,1
         ansatz = (torch.tanh(np.pi * x)
                   * torch.tanh(np.pi * (1.0 - x))
                   * torch.tanh(np.pi * y)
                   * torch.tanh(np.pi * (1.0 - y)))
-    
+        '''
         # Multiply raw network output by ansatz
         return ansatz * predicted
         
