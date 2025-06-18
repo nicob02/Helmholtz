@@ -34,7 +34,8 @@ model.load_model(ckptpath)
 model.to(device)
 model.eval()
 test_steps = 20
-
+lb = torch.tensor((0.0, 0.0), device=device)
+ru = torch.tensor((1.0, 1.0), device=device)
 test_config = parse_config()
 
 #model = kwargs['model'] # Extracts the model's dictioanry with the weights and biases values
