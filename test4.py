@@ -24,8 +24,9 @@ func_main = Func(delta_t=delta_t, params=poisson_params)
 
 bc1 = func_main.boundary_condition
 ic = func_main.init_condition
-
-mesh = ElectrodeMesh(ru=(4, 4), lb=(0, 0), density=65)
+lb=(0, 0)
+ru=(4, 4)
+mesh = ElectrodeMesh(ru=ru, lb=lb, density=65)
 graph = mesh.getGraphData()
 model = msgPassing(message_passing_num=3, node_input_size=out_ndim+2, 
                    edge_input_size=3, ndim=out_ndim, device=device, model_dir=ckptpath)
@@ -45,7 +46,8 @@ setattr(test_config, 'bc1', bc1)
 setattr(test_config, 'model', model)
 setattr(test_config, 'test_steps', test_steps)
 setattr(test_config, 'NodeTypesRef', ElectrodeMesh.node_type_ref)
-#setattr(test_config, 'name', func_name)
+setattr(test_config, 'lb', lb)
+setattr(test_config, 'ru', ru)
 setattr(test_config, 'ndim', out_ndim)
 setattr(test_config, 'graph_modify', func_main.graph_modify)
 setattr(test_config, 'graph', graph)
