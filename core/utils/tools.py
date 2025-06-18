@@ -67,10 +67,10 @@ def modelTrainer(config):
         u_raw = model(graph)  
 
         # 3) Enforce Dirichlet BC = 0 via ansatz (or hard clamp)
-        u = config.bc1(graph, u_raw,)
+        u = config.bc1(graph, u_raw, lb=config.lb, ru=config.ru)
 
         # 4) Compute PDE residual: -Δ u + u - f
-        res = config.pde(graph, values_this=u, lb=config.lb, ru=config.ru)       # uses laplacian_ad internally
+        res = config.pde(graph, values_this=u)       # uses laplacian_ad internally
         loss = torch.norm(res)                       # L2 norm of residual
     
         config.optimizer.zero_grad()
