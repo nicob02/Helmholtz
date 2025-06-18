@@ -109,7 +109,7 @@ def modelTester(config):
 
     # 3) Forward pass + boundary enforcement
     u_raw  = model(graph)               # shape [N,1]
-    u_pred = config.bc1(graph, u_raw)   # apply ansatz/hard clamp
+    u_pred = config.bc1(graph, u_raw, lb=config.lb, rb=config.rb)   # apply ansatz/hard clamp
 
     return u_pred.cpu().numpy()
 
