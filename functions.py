@@ -78,7 +78,7 @@ class ElectroThermalFunc():
         # normalized coords in [0,1]
         ξ = (x - lb_x)/(ru_x - lb_x)
         η = (y - lb_y)/(ru_y - lb_y)
-        
+        '''
         # PDE‐enforcing ansatz: zero on all four boundaries
         ansatz = torch.tanh(math.pi * ξ) \
           * torch.tanh(math.pi * (1-ξ)) \
@@ -90,7 +90,7 @@ class ElectroThermalFunc():
                   * torch.tanh(np.pi * (1.0 - x))
                   * torch.tanh(np.pi * y)
                   * torch.tanh(np.pi * (1.0 - y)))
-        '''
+        
         # Multiply raw network output by ansatz
         return ansatz * predicted
         
