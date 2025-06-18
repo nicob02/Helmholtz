@@ -72,8 +72,15 @@ class ElectroThermalFunc():
         
         pos = graph.pos           # [N,2]
         x = pos[:,0:1];  y = pos[:,1:2]
-        lb_x, lb_y = pos.min(dim=0).values  # tensor([ℓ_x, ℓ_y])
-        ru_x, ru_y = pos.max(dim=0).values  # tensor([r_x, r_y])
+        if isinstance(lb, torch.Tensor):
+        lb_x, lb_y = lb[0].item(), lb[1].item()
+        else:
+            lb_x, lb_y = float(lb[0]), float(lb[1])
+    
+        if isinstance(ru, torch.Tensor):
+            ru_x, ru_y = ru[0].item(), ru[1].item()
+        else:
+            ru_x, ru_y = float(ru[0]), float(ru[1])
         
         if lb is not None and ru is not None:
             # unpack, ensure floats
