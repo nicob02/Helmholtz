@@ -38,6 +38,9 @@ print("mesh")
 pos = mesh.pos  # Shape (N, 2), where N is the number of nodes
 faces = mesh.faces  # Shape (3, M), where M is the number of triangular elements
 
+lb = torch.tensor((0.0, 0.0), device=device)
+ru = torch.tensor((1.0, 1.0), device=device)
+
 # Plot the mesh
 plt.figure(figsize=(8, 8))
 plt.triplot(pos[:, 0], pos[:, 1], faces.T, color='blue', linewidth=0.5)
@@ -83,6 +86,8 @@ setattr(train_config, 'ic', ic)
 setattr(train_config, 'bc1', bc1)
 setattr(train_config, 'graph', graph)
 setattr(train_config, 'model', model)
+setattr(train_config, 'lb', lb)
+setattr(train_config, 'ru', ru)
 setattr(train_config, 'optimizer', optimizer)
 setattr(train_config, 'train_steps', 1)    # 1 train step, extend this in the future to a dynamic source function that changes with time.
 setattr(train_config, 'epchoes', 5)
