@@ -25,7 +25,7 @@ func_main = Func(delta_t=delta_t, params=poisson_params)
 bc1 = func_main.boundary_condition
 ic = func_main.init_condition
 lb=(0, 0)
-ru=(1, 1)
+ru=(2, 2)
 mesh = ElectrodeMesh(ru=ru, lb=lb, density=65)
 graph = mesh.getGraphData()
 model = msgPassing(message_passing_num=3, node_input_size=out_ndim+2, 
@@ -35,7 +35,7 @@ model.to(device)
 model.eval()
 test_steps = 20
 lb = torch.tensor((0.0, 0.0), device=device)
-ru = torch.tensor((1.0, 1.0), device=device)
+ru = torch.tensor((2.0, 2.0), device=device)
 test_config = parse_config()
 
 #model = kwargs['model'] # Extracts the model's dictioanry with the weights and biases values
