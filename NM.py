@@ -1,7 +1,6 @@
 import torch
 from core.geometry import ElectrodeMesh
 from torch.utils.tensorboard import SummaryWriter
-from functions import CoupledElectroThermalFunc as Func
 import matplotlib.pyplot as plt
 from fenics import *
 import numpy as np
@@ -60,4 +59,5 @@ def run_fem_helmholtz(mesh,
     u_vals = np.array([uh(Point(float(xi), float(yi))) for (xi, yi) in coords], dtype=np.float64)
 
     return coords, u_vals
+
 
