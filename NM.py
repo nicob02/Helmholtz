@@ -1,12 +1,32 @@
-# NM.py
-from fenics import (
-    UnitSquareMesh, Mesh, FunctionSpace, TrialFunction, TestFunction, Function,
-    Constant, DirichletBC, Expression, assemble, solve, dx, dot, grad, inner
-)
-from fenics import Point
-from ufl import SpatialCoordinate
+from petsc4py import PETSc
+from fenics import (NonlinearProblem, NewtonSolver, FiniteElement,
+                    MixedElement, assemble, FunctionSpace, TestFunctions, Function,
+                    interpolate, Expression, split, dot, inner, grad, dx, DirichletBC,
+                    Constant, exp, ln, derivative, PETScKrylovSolver,
+                    PETScFactory, near, PETScOptions, assign, File, plot, SpatialCoordinate)
+from ufl import conditional
 import numpy as np
+import sys
+import matplotlib.pyplot as plt
+from core.geometry import ElectrodeMesh
+from fenics import (
+    Point, FunctionSpace, TrialFunction, TestFunction, Function,
+    Constant, DirichletBC, solve, dx, dot, grad
+)
+from ufl import conditional, le, SpatialCoordinate
 
+from fenics import (
+    Point, FunctionSpace, TrialFunction, TestFunction, Function,
+    Constant, DirichletBC, solve, dx, dot, grad, conditional, le,
+    interpolate, SpatialCoordinate
+)
+
+from fenics import (
+    Point, FunctionSpace, TrialFunction, TestFunction,
+    Function, Constant, DirichletBC, solve, dx,
+    dot, grad, conditional, le, SpatialCoordinate
+)
+import numpy as np
 def run_fem_helmholtz(mesh: Mesh,
                       coords=None,
                       eps_val: float = 1.0,
@@ -79,3 +99,4 @@ def run_fem_helmholtz(mesh: Mesh,
         u_samples = np.array([uh(Point(float(xi), float(yi))) for (xi, yi) in coords_out], dtype=float)
 
     return coords_out, u_samples
+
