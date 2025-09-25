@@ -27,7 +27,7 @@ from fenics import (
     dot, grad, conditional, le, SpatialCoordinate
 )
 import numpy as np
-def run_fem_helmholtz(mesh: Mesh,
+def run_fem_helmholtz(mesh,
                       coords=None,
                       eps_val: float = 1.0,
                       k_val: float = 1.0):
@@ -99,4 +99,5 @@ def run_fem_helmholtz(mesh: Mesh,
         u_samples = np.array([uh(Point(float(xi), float(yi))) for (xi, yi) in coords_out], dtype=float)
 
     return coords_out, u_samples
+
 
