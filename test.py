@@ -26,7 +26,7 @@ bc1 = func_main.boundary_condition
 ic = func_main.init_condition
 lb=(0, 0)
 ru=(1, 1)
-mesh = ElectrodeMesh(ru=ru, lb=lb, density=30)
+mesh = ElectrodeMesh(ru=ru, lb=lb, density=60)
 graph = mesh.getGraphData()
 model = msgPassing(message_passing_num=3, node_input_size=out_ndim+2, 
                    edge_input_size=3, ndim=out_ndim, device=device, model_dir=ckptpath)
@@ -91,6 +91,7 @@ exact_1d  = np.asarray(u_exact_np).reshape(-1)
 fem_1d    = np.asarray(u_fem).reshape(-1)
 render_results(fem_1d, exact_1d, graph, filename="helmholtz_steady.png")
 #render_results(u_fem, u_exact_np, graph, filename="helmholtz_steady.png")
+
 
 
 
