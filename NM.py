@@ -1,6 +1,9 @@
-# FEM_Helmholtz.py
+import torch
+from core.geometry import ElectrodeMesh
+from torch.utils.tensorboard import SummaryWriter
+from functions import CoupledElectroThermalFunc as Func
+import matplotlib.pyplot as plt
 from fenics import *
-from ufl import SpatialCoordinate, pi, sin, cos
 import numpy as np
 
 def run_fem_helmholtz(mesh,
@@ -10,52 +13,51 @@ def run_fem_helmholtz(mesh,
                       lb=(0.0, 0.0),
                       ru=(1.0, 1.0)):
     """
-    Solve on a rectangular domain Ω = [lb_x,ru_x] × [lb_y,ru_y]:
-        eps * Δu + k^2 u = f(x̂, ŷ),   u=0 on ∂Ω
-    where (x̂, ŷ) are the *normalized* coordinates mapped to [0,1]^2:
-        x̂ = (x - lb_x)/(ru_x - lb_x), same for ŷ.
-    This lets you use your original analytical f on [0,1]^2 regardless of mesh size.
-
-    Returns:
-      coords     : same (N×2) array you passed in
-      u_vals     : FEM solution sampled at those coords (N,)
+    Solve on Ω=[lb_x,ru_x]×[lb_y,ru_y]:
+        ε Δu + k^2 u = f(x̂,ŷ),  u=0 on ∂Ω,
+    where (x̂,ŷ) are normalized to [0,1]^2 to match your Eq.(2) forcing.
+    Returns (coords, u_vals) sampled at 'coords'.
     """
-    lb_x, lb_y = lb
-    ru_x, ru_y = ru
-    Lx = float(ru_x - lb_x)
-    Ly = float(ru_y - lb_y)
+    # 1) ensure we have a dolfin Mesh (same pattern as your electro-thermal FEM)
+    fenics_mesh = mesh.mesh if hasattr(mesh, "mesh") else mesh
+    assert isinstance(fenics_mesh, Mesh), (
+        "run_fem_helmholtz: 'mesh' must be a dolfin Mesh or an object with .mesh (dolfin Mesh)."
+    )
 
-    V = FunctionSpace(mesh, 'CG', 2)
+    # 2) function space and variational forms
+    V = FunctionSpace(fenics_mesh, 'CG', 2)
     u = TrialFunction(V)
     v = TestFunction(V)
 
-    # Physical constants
     eps = Constant(eps_val)
     k2  = Constant(k_val**2)
 
-    # Spatial coordinates and normalization to [0,1]^2 for the forcing term
-    X = SpatialCoordinate(mesh)
-    xhat = (X[0] - lb_x)/Lx
-    yhat = (X[1] - lb_y)/Ly
+    # normalize coordinates to [0,1]^2 for the forcing
+    lb_x, lb_y = float(lb[0]), float(lb[1])
+    ru_x, ru_y = float(ru[0]), float(ru[1])
+    Lx = ru_x - lb_x
+    Ly = ru_y - lb_y
 
-    # Your Eq. (2) forcing defined on [0,1]^2 using (xhat,yhat)
-    f = (2*pi*cos(pi*yhat)*sin(pi*xhat)
-         + 2*pi*cos(pi*xhat)*sin(pi*yhat)
-         + (xhat + yhat)*sin(pi*xhat)*sin(pi*yhat)
-         - 2*(pi**2)*(xhat + yhat)*sin(pi*xhat)*sin(pi*yhat))
+    X    = SpatialCoordinate(fenics_mesh)
+    xhat = (X[0] - lb_x) / Lx
+    yhat = (X[1] - lb_y) / Ly
 
-    # Weak form: ∫ eps ∇u·∇v dx + ∫ k^2 u v dx = ∫ f v dx
-    a = eps*dot(grad(u), grad(v))*dx + k2*(u*v)*dx
+    f = ( 2*ufl.pi*ufl.cos(ufl.pi*yhat)*ufl.sin(ufl.pi*xhat)
+        + 2*ufl.pi*ufl.cos(ufl.pi*xhat)*ufl.sin(ufl.pi*yhat)
+        + (xhat + yhat)*ufl.sin(ufl.pi*xhat)*ufl.sin(ufl.pi*yhat)
+        - 2*(ufl.pi**2)*(xhat + yhat)*ufl.sin(ufl.pi*xhat)*ufl.sin(ufl.pi*yhat) )
+
+    a = eps*dot(grad(u), grad(v))*dx + k2*u*v*dx
     L = f*v*dx
 
-    # Homogeneous Dirichlet BC on the whole boundary
     bc = DirichletBC(V, Constant(0.0), 'on_boundary')
 
     uh = Function(V)
     solve(a == L, uh, bc)
 
-    # Sample solution at requested coordinates
-    coords = np.asarray(coords, dtype=float)
-    u_vals = np.array([uh(Point(float(xi), float(yi))) for (xi, yi) in coords], dtype=float)
+    # 3) sample at requested coordinates
+    coords = np.asarray(coords, dtype=np.float64)
+    u_vals = np.array([uh(Point(float(xi), float(yi))) for (xi, yi) in coords], dtype=np.float64)
 
     return coords, u_vals
+
