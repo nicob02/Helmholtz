@@ -141,7 +141,7 @@ class ElectroThermalFunc():
     def pde(self, graph, values_this, **argv):
 
         """
-        PDE: -Δu + u = f(x,y)
+        PDE: Δu + u = f(x,y)
         with ε=1, k=1, and
         f(x,y) = 2π cos(πy) sin(πx)
                + 2π cos(πx) sin(πy)
@@ -192,4 +192,5 @@ class ElectroThermalFunc():
 
     
     
+
 
