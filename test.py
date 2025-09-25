@@ -5,7 +5,7 @@ from core.models import msgPassing
 from core.geometry import ElectrodeMesh
 from functions import ElectroThermalFunc as Func
 import os
-
+from NM import run_fem_helmholtz
 
 
 
@@ -61,12 +61,28 @@ setattr(test_config, 'density', dens)
 print('************* model test starts! ***********************')
 predicted_results = modelTester(test_config)
 
+# Analytic (exact) field on graph nodes
 u_exact = func_main.exact_solution(graph)  
-u_exact_np  = u_exact.detach().cpu().numpy()
-# 2) Compute exact & error
-rel_l2 = compute_steady_error(predicted_results, u_exact_np, test_config)
-print(f"Relative L2 error: {rel_l2:.3e}")
+u_exact_np  = u_exact.detach().cpu().numpy().reshape(-1)
 
+coords_fem, u_fem = run_fem_helmholtz(
+    mesh=mesh,
+    coords=graph.pos.detach().cpu().numpy(),  # sample FEM on the same points as the GNN
+    eps_val=1.0,
+    k_val=1.0
+)
+
+# --- Errors vs analytic (report BOTH, as reviewers asked) ---
+err_gnn_vs_exact = compute_steady_error(predicted_results, u_exact_np, test_config)
+err_fem_vs_exact = compute_steady_error(u_fem,            u_exact_np, test_config)
+
+print(f"Relative L2 error (GNN vs analytic): {err_gnn_vs_exact:.3e}")
+print(f"Relative L2 error (FEM vs analytic): {err_fem_vs_exact:.3e}")
+
+# (Optional) also show how close GNN is to FEM:
+err_gnn_vs_fem = compute_steady_error(predicted_results, u_fem, test_config)
+print(f"Relative L2 error (GNN vs FEM):      {err_gnn_vs_fem:.3e}")
 # 3) Render the three‐panel result
 render_results(predicted_results, u_exact_np, graph, filename="helmholtz_steady.png")
+
 
