@@ -70,8 +70,8 @@ coords_fem, u_fem = run_fem_helmholtz(
     coords=graph.pos.cpu().numpy(),  # sample FEM on the same points as the GNN
     eps_val=1.0,
     k_val=1.0,
-    lb=lb,                                  # <<< set these to your Helmholtz domain
-    ru=ru 
+    lb = (0, 0),   # example for testing on [-1,1]^2
+    ru = (1.0, 1.0)
 )
 
 # --- Errors vs analytic (report BOTH, as reviewers asked) ---
@@ -86,6 +86,7 @@ err_gnn_vs_fem = compute_steady_error(predicted_results, u_fem, test_config)
 print(f"Relative L2 error (GNN vs FEM):      {err_gnn_vs_fem:.3e}")
 # 3) Render the three‐panel result
 render_results(predicted_results, u_exact_np, graph, filename="helmholtz_steady.png")
+
 
 
 
