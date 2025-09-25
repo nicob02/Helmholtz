@@ -39,7 +39,7 @@ pos = mesh.pos  # Shape (N, 2), where N is the number of nodes
 faces = mesh.faces  # Shape (3, M), where M is the number of triangular elements
 
 lb = torch.tensor((0.0, 0.0), device=device)
-ru = torch.tensor((3.0, 3.0), device=device)
+ru = torch.tensor((1.0, 1.0), device=device)
 
 # Plot the mesh
 plt.figure(figsize=(8, 8))
@@ -101,6 +101,7 @@ setattr(train_config, 'func_main', func_main)
 
 
 modelTrainer(train_config)
+
 
 
 
