@@ -4,6 +4,7 @@ from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
 from fenics import *
 import numpy as np
+import ufl
 
 def run_fem_helmholtz(mesh,
                       coords,
@@ -59,5 +60,6 @@ def run_fem_helmholtz(mesh,
     u_vals = np.array([uh(Point(float(xi), float(yi))) for (xi, yi) in coords], dtype=np.float64)
 
     return coords, u_vals
+
 
 
