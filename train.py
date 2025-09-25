@@ -90,7 +90,7 @@ setattr(train_config, 'lb', lb)
 setattr(train_config, 'ru', ru)
 setattr(train_config, 'optimizer', optimizer)
 setattr(train_config, 'train_steps', 1)    # 1 train step, extend this in the future to a dynamic source function that changes with time.
-setattr(train_config, 'epchoes', 10)
+setattr(train_config, 'epchoes', 6000)
 setattr(train_config, 'NodeTypesRef', ElectrodeMesh.node_type_ref) 
 setattr(train_config, 'step_times', 1)
 setattr(train_config, 'ndim', out_ndim)
@@ -100,6 +100,7 @@ setattr(train_config, 'func_main', func_main)
 
 
 modelTrainer(train_config)
+
 
 
 
