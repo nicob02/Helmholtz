@@ -63,7 +63,7 @@ predicted_results = modelTester(test_config)
 
 # Analytic (exact) field on graph nodes
 u_exact = func_main.exact_solution(graph)  
-u_exact_np  = u_exact.detach().cpu().numpy().reshape(-1)
+u_exact_np  = u_exact.detach().cpu().numpy()
 
 coords_fem, u_fem = run_fem_helmholtz(
     mesh=mesh,
@@ -86,6 +86,7 @@ err_gnn_vs_fem = compute_steady_error(predicted_results, u_fem, test_config)
 print(f"Relative L2 error (GNN vs FEM):      {err_gnn_vs_fem:.3e}")
 # 3) Render the three‐panel result
 render_results(predicted_results, u_exact_np, graph, filename="helmholtz_steady.png")
+
 
 
 
