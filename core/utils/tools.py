@@ -44,56 +44,47 @@ def parse_config(file='config.json'):
 
 
 def modelTrainer(config):
+
     model = config.model
     graph = config.graph
-    opt = config.optimizer
-    scheduler = torch.optim.lr_scheduler.StepLR(opt, step_size=config.lrstep, gamma=0.99)
+    scheduler = torch.optim.lr_scheduler.StepLR(
+        config.optimizer, step_size=config.lrstep, gamma=0.99)  
+    best_loss  = np.inf
+    # 1) Build fixed node features once: [x, y, f]
+    x = graph.pos[:,0:1]
+    y = graph.pos[:,1:2]
+    f = (
+    2 * math.pi * torch.cos(math.pi * y) * torch.sin(math.pi * x)
+    + 2 * math.pi * torch.cos(math.pi * x) * torch.sin(math.pi * y)
+    + (x + y) * torch.sin(math.pi * x) * torch.sin(math.pi * y)
+    - 2 * (math.pi ** 2) * (x + y) * torch.sin(math.pi * x) * torch.sin(math.pi * y)
+    )
 
-    # Precompute node features: [x, y, f]
-    x = graph.pos[:, 0:1]
-    y = graph.pos[:, 1:2]
-    f = (2*math.pi*torch.cos(math.pi*y)*torch.sin(math.pi*x)
-         + 2*math.pi*torch.cos(math.pi*x)*torch.sin(math.pi*y)
-         + (x + y)*torch.sin(math.pi*x)*torch.sin(math.pi*y)
-         - 2*(math.pi**2)*(x + y)*torch.sin(math.pi*x)*torch.sin(math.pi*y))
 
-    # For plotting/logging
-    train_hist = {"epoch": [], "residual_loss": [], "relL2_exact": []}
+    for epoch in range(1, config.epchoes + 1):  # Creates different ic and solves the problem, does this epoch # of times
 
-    # (optional) closed-form exact u for Helmholtz test
-    u_exact = (x + y) * torch.sin(math.pi * x) * torch.sin(math.pi * y)
+        graph.x = torch.cat([graph.pos, f], dim=-1)  # shape [N,3]
+        u_raw = model(graph)  
 
-    for epoch in range(1, config.epchoes + 1):
-        graph.x = torch.cat([graph.pos, f], dim=-1)   # [N,3]
-        u_raw = model(graph)
+        # 3) Enforce Dirichlet BC = 0 via ansatz (or hard clamp)
         u = config.bc1(graph, u_raw, lb=config.lb, ru=config.ru)
 
-        # PDE residual (your pde() returns strong-form residual at nodes)
-        res = config.pde(graph, values_this=u)  # shape [N,1] or [N]
-        loss = torch.mean(res**2)               # MSE of residual (more standard than ||·||)
+        # 4) Compute PDE residual: -Δ u + u - f
+        res = config.pde(graph, values_this=u)       # uses laplacian_ad internally
+        loss = torch.norm(res)                       # L2 norm of residual
 
-        opt.zero_grad()
-        loss.backward()
-        opt.step()
+        config.optimizer.zero_grad()
+        loss.backward(retain_graph=True)
+        config.optimizer.step()
         scheduler.step()
 
-        # logging (every epoch)
-        with torch.no_grad():
-            # relative L2 to exact (optional but nice for Helmholtz section)
-            relL2 = torch.linalg.norm(u - u_exact) / torch.linalg.norm(u_exact)
-            train_hist["epoch"].append(epoch)
-            train_hist["residual_loss"].append(loss.item())
-            train_hist["relL2_exact"].append(relL2.item())
-
         if epoch % 500 == 0:
-            print(f"[Epoch {epoch:5d}] residual_MSE={loss.item():.3e}  relL2={relL2.item():.3e}")
+        if epoch % 250 == 0:
+            print(f"[Epoch {epoch:4d}] Loss = {loss.item():.3e}")
 
-    # save history for plotting
-    import pandas as pd
-    pd.DataFrame(train_hist).to_csv("helmholtz_training_history.csv", index=False)
-
-    model.save_model(opt)
-    print(f"Training completed. Final residual_MSE={loss.item():.3e}, relL2={relL2.item():.3e}")
+    model.save_model(config.optimizer)
+    print('model saved at loss: %.4e' % loss)    
+    print("Training completed!")
         
 @torch.no_grad()
 def modelTester(config):
@@ -179,5 +170,6 @@ def render_results(u_pred, u_exact, graph, filename="steady_results.png"):
     plt.tight_layout()
     plt.savefig(filename, dpi=300)
     plt.close(fig)
+
 
 
