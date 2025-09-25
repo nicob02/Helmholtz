@@ -52,7 +52,7 @@ delta_t = 1
 poisson_params = 25.13274  # 8*pi
 out_ndim = 1
 
-dens = 50
+dens = 65
 device = torch.device(0 if torch.cuda.is_available() else "cpu")
 ckptpath = 'checkpoint/simulator_%s.pth' % Func.func_name
 
@@ -179,6 +179,7 @@ fem_1d   = np.asarray(u_fem).reshape(-1)
 # This utility expects three inputs: field_pred, field_exact, graph, filename
 render_results(fem_1d, exact_1d, graph, filename="helmholtz_steady.png")
 print("Saved: helmholtz_steady.png")
+
 
 
 
