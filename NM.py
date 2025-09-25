@@ -4,7 +4,6 @@ from fenics import (NonlinearProblem, NewtonSolver, FiniteElement,
                     interpolate, Expression, split, dot, inner, grad, dx, DirichletBC,
                     Constant, exp, ln, derivative, PETScKrylovSolver,
                     PETScFactory, near, PETScOptions, assign, File, plot, SpatialCoordinate)
-from ufl import conditional
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
@@ -70,8 +69,6 @@ def run_fem_helmholtz(mesh,
     # f(x,y) = 2πcos(πy) sin(πx) + 2πcos(πx) sin(πy)
     #          + (x+y) sin(πx) sin(πy) - 2π^2 (x+y) sin(πx) sin(πy)
     x = SpatialCoordinate(mesh)
-    # You can write f with UFL operations directly:
-    import ufl
     pi = ufl.pi
     f = (2*pi*ufl.cos(pi*x[1]) * ufl.sin(pi*x[0])
          + 2*pi*ufl.cos(pi*x[0]) * ufl.sin(pi*x[1])
@@ -99,5 +96,6 @@ def run_fem_helmholtz(mesh,
         u_samples = np.array([uh(Point(float(xi), float(yi))) for (xi, yi) in coords_out], dtype=float)
 
     return coords_out, u_samples
+
 
 
