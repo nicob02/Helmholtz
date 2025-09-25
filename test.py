@@ -33,7 +33,7 @@ model = msgPassing(message_passing_num=3, node_input_size=out_ndim+2,
 model.load_model(ckptpath)
 model.to(device)
 model.eval()
-test_steps = 60
+test_steps = 30
 lb = torch.tensor((0.0, 0.0), device=device)
 ru = torch.tensor((1.0, 1.0), device=device)
 test_config = parse_config()
@@ -91,6 +91,7 @@ exact_1d  = np.asarray(u_exact_np).reshape(-1)
 fem_1d    = np.asarray(u_fem).reshape(-1)
 render_results(fem_1d, exact_1d, graph, filename="helmholtz_steady.png")
 #render_results(u_fem, u_exact_np, graph, filename="helmholtz_steady.png")
+
 
 
 
