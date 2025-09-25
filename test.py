@@ -85,7 +85,9 @@ print(f"Relative L2 error (FEM vs analytic): {err_fem_vs_exact:.3e}")
 err_gnn_vs_fem = compute_steady_error(predicted_results, u_fem, test_config)
 print(f"Relative L2 error (GNN vs FEM):      {err_gnn_vs_fem:.3e}")
 # 3) Render the three‐panel result
-render_results(predicted_results, u_exact_np, graph, filename="helmholtz_steady.png")
+#render_results(predicted_results, u_exact_np, graph, filename="helmholtz_steady.png")
+render_results(u_fem, u_exact_np, graph, filename="helmholtz_steady.png")
+
 
 
 
