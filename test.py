@@ -25,7 +25,7 @@ func_main = Func(delta_t=delta_t, params=poisson_params)
 bc1 = func_main.boundary_condition
 ic = func_main.init_condition
 lb=(0, 0)
-ru=(2, 2)
+ru=(1, 1)
 mesh = ElectrodeMesh(ru=ru, lb=lb, density=65)
 graph = mesh.getGraphData()
 model = msgPassing(message_passing_num=3, node_input_size=out_ndim+2, 
@@ -35,7 +35,7 @@ model.to(device)
 model.eval()
 test_steps = 20
 lb = torch.tensor((0.0, 0.0), device=device)
-ru = torch.tensor((2.0, 2.0), device=device)
+ru = torch.tensor((1.0, 1.0), device=device)
 test_config = parse_config()
 
 #model = kwargs['model'] # Extracts the model's dictioanry with the weights and biases values
@@ -67,9 +67,11 @@ u_exact_np  = u_exact.detach().cpu().numpy().reshape(-1)
 
 coords_fem, u_fem = run_fem_helmholtz(
     mesh=mesh,
-    coords=graph.pos.detach().cpu().numpy(),  # sample FEM on the same points as the GNN
+    coords=graph.pos.cpu().numpy(), ,  # sample FEM on the same points as the GNN
     eps_val=1.0,
-    k_val=1.0
+    k_val=1.0,
+    lb=lb,                                  # <<< set these to your Helmholtz domain
+    ru=ru 
 )
 
 # --- Errors vs analytic (report BOTH, as reviewers asked) ---
@@ -84,5 +86,6 @@ err_gnn_vs_fem = compute_steady_error(predicted_results, u_fem, test_config)
 print(f"Relative L2 error (GNN vs FEM):      {err_gnn_vs_fem:.3e}")
 # 3) Render the three‐panel result
 render_results(predicted_results, u_exact_np, graph, filename="helmholtz_steady.png")
+
 
 
