@@ -14,8 +14,8 @@ def run_fem_helmholtz(mesh,
                       coords,
                       eps_val=1.0,
                       k_val=1.0,
-                      lb,
-                      ru):
+                      lb = (0, 0),   
+                      ru = (1.0, 1.0)
     """
     Solve on Ω (assumed to be [0,1]×[0,1]):
         ε Δu + k^2 u = f(x,y),   u=0 on ∂Ω,
@@ -54,6 +54,7 @@ def run_fem_helmholtz(mesh,
     coords = np.asarray(coords, dtype=np.float64)
     u_vals = np.array([uh(Point(float(xi), float(yi))) for (xi, yi) in coords], dtype=np.float64)
     return coords, u_vals
+
 
 
 
