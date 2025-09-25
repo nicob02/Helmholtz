@@ -6,7 +6,7 @@ from core.geometry import ElectrodeMesh
 from functions import ElectroThermalFunc as Func
 import os
 from NM import run_fem_helmholtz
-
+import numpy as np
 
 
 delta_t = 1 # Mess around with this
@@ -91,6 +91,7 @@ exact_1d  = np.asarray(u_exact_np).reshape(-1)
 fem_1d    = np.asarray(u_fem).reshape(-1)
 render_results(fem_1d, exact_1d, graph, filename="helmholtz_steady.png")
 #render_results(u_fem, u_exact_np, graph, filename="helmholtz_steady.png")
+
 
 
 
