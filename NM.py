@@ -43,7 +43,7 @@ def run_fem_helmholtz(mesh,
         + (x + y)*ufl.sin(ufl.pi*x)*ufl.sin(ufl.pi*y)
         - 2*(ufl.pi**2)*(x + y)*ufl.sin(ufl.pi*x)*ufl.sin(ufl.pi*y) )
 
-    a = eps*dot(grad(u), grad(v))*dx + k2*u*v*dx
+    a = -eps*dot(grad(u), grad(v))*dx + k2*u*v*dx
     L = f*v*dx
 
     bc = DirichletBC(V, Constant(0.0), 'on_boundary')
@@ -55,6 +55,7 @@ def run_fem_helmholtz(mesh,
     u_vals = np.array([uh(Point(float(xi), float(yi))) for (xi, yi) in coords], dtype=np.float64)
     
     return coords, u_vals
+
 
 
 
