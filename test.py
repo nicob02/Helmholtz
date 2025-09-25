@@ -16,7 +16,7 @@ poisson_params = 25.13274  #8pi, initial test case, change later.
 #func_name = 'rfa'
 out_ndim = 1
 
-dens=65
+dens=90
 ckptpath = 'checkpoint/simulator_%s.pth' % Func.func_name    #FIGURE THIS OUT
 device = torch.device(0)
 
@@ -91,6 +91,7 @@ exact_1d  = np.asarray(u_exact_np).reshape(-1)
 fem_1d    = np.asarray(u_fem).reshape(-1)
 render_results(fem_1d, exact_1d, graph, filename="helmholtz_steady.png")
 #render_results(u_fem, u_exact_np, graph, filename="helmholtz_steady.png")
+
 
 
 
